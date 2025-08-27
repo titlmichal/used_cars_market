@@ -3,10 +3,20 @@ __pycache__/
 *.pyc
 .venv/
 
+# .pyc is generated to bytecode compiled file --> not needed to verse bcs its auto
+# virtual envi contents are based on requirements and can be huge
+
 # Private
 .env
 *.json
 
+# .env stores keys, passwords, users etc
+# some of such files are jsons, hence the json files too
+
 # dbt
 dbt_project/logs/
 dbt_project/target/
+
+# dbt logs are mostly for testing and generated each run
+# dbt stores clean SQL in the target, its a result of compilation (again, autogeneraed)
+# ... only the source sql files are to be verse
