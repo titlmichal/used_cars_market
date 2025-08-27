@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Private
+.env
+*.json
+
+# dbt
+dbt_project/logs/
+dbt_project/target/
