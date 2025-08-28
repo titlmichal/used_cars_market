@@ -1,6 +1,11 @@
 import requests
 from bs4 import BeautifulSoup, Tag
 
+class usedCar:
+    def __init__(self, name):
+        self.name = name
+        self.link = ""
+
 r = requests.get("https://www.sauto.cz/inzerce/osobni")
 if r.status_code != 200:
     raise Exception("Error. Request unsuccesful!")
@@ -23,12 +28,14 @@ for descendant in html_body.descendants:
             # if attribute value of class = "" it will be counted in len but not found via index
             if "c-item__data-wrap" in descendant.attrs["class"]:
                 # this class should be unique identifier of car item --> DOUBLE CHECK THAT
-                print(descendant)
-                print()
+                for content in descendant.contents:
+                    print(content)
+                    print()
+                print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     else:
         continue
     # print(descendant.attrs.keys())
     # print(counter)
     
-    counter += 1
+    # counter += 1
     # print()

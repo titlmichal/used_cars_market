@@ -11,3 +11,7 @@ Im using LLM (Gemini) as a mentor, professional guide, not a coder/step-by-step 
 2) load the data into GCP/BigQuery (L in ELT)
 3) deal with the messy extractions via dbt (T in ELT) and create model and tests
 4) set up automation via GitHub Actions, connection to BI tool and visualize
+
+### Todays progress/action
+Created virtual envi (.venv) to lower the risk of dependency/versions issues (had to activate scripts running to allow for the envi activation, see https://stackoverflow.com/questions/54776324/powershell-bug-execution-of-scripts-is-disabled-on-this-system).
+Created .gitignore and added basic recommend ignore
