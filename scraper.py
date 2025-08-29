@@ -1,5 +1,5 @@
 import requests
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag, NavigableString
 
 class usedCar:
     def __init__(self, name):
@@ -14,7 +14,10 @@ html_soup = BeautifulSoup(r.content, "html.parser")
 # html_soup.prettify
 # print(html_soup.body.contents)
 html_body = html_soup.find("body")
-counter = 0
+
+# parsing the html to find the individual car data --> REFACTOR!
+# most likely the best would be to write a function to find a tag by its class name
+# find_all method may be a good fix
 for descendant in html_body.descendants:   
     # descendants are all indirect children but that all means
     # ...that even simple strings within the tags are indirect children
@@ -29,13 +32,22 @@ for descendant in html_body.descendants:
             if "c-item__data-wrap" in descendant.attrs["class"]:
                 # this class should be unique identifier of car item --> DOUBLE CHECK THAT
                 for content in descendant.contents:
-                    print(content)
+                    # car seems to have 3 tag: 1st has link and name start, 2nd has overview details and 3rd has price
+                    # but those are divs, the details are in nested divs inside
+                    if "href" in content.attrs.keys():
+                        # getting hyperlinks if the element has such attribute
+                        print(content.attrs["href"])
+                    elif "c-item__info-wrap" in content.attrs["class"]:
+                        # getting main info tag (contains name, year, mileage)
+                        for i in content.descendants:
+                            if isinstance(i, NavigableString):
+                                print(i)
+                    elif "c-item__data" in content.attrs["class"]:
+                        # getting tag with price
+                        for i in content.descendants:
+                            if not isinstance(i, NavigableString) and "c-item__price" in i.attrs["class"]:
+                                print("This is price:", i.string)
                     print()
                 print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     else:
         continue
-    # print(descendant.attrs.keys())
-    # print(counter)
-    
-    # counter += 1
-    # print()
