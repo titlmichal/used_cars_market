@@ -1,4 +1,5 @@
 import requests
+import math
 from bs4 import BeautifulSoup, Tag, NavigableString
 
 class usedCar:
@@ -6,7 +7,8 @@ class usedCar:
         self.name = name
         self.link = ""
 
-r = requests.get("https://www.sauto.cz/inzerce/osobni")
+page_nr = 1
+r = requests.get(f"https://www.sauto.cz/inzerce/osobni/?strana={page_nr}")
 if r.status_code != 200:
     raise Exception("Error. Request unsuccesful!")
 
@@ -48,12 +50,13 @@ for descendant in html_body.descendants:
                             if isinstance(i, NavigableString):
                                 # choosing only string contents (not tag objects)
                                 info_contents.append(i)
-                        # tags contents follow same order, hence this --> REFACTOR later!
-                        car_dict["name"] = info_contents[0] or "NaN"
-                        car_dict["features"] = info_contents[1] or "NaN"
-                        car_dict["year_kms"] = info_contents[2] or "NaN"
-                        car_dict["fuel"] = info_contents[3] or "NaN"
-                        car_dict["gearbox"] = info_contents[4] or "NaN"
+                        try:
+                            # tags contents follow same order, hence this --> REFACTOR later!
+                            car_dict["name"], car_dict["features"], car_dict["year_kms"] = info_contents[0], info_contents[1], info_contents[2]
+                            car_dict["fuel"], car_dict["gearbox"] = info_contents[3], info_contents[4]
+                        except:
+                            car_dict["name"], car_dict["features"], car_dict["year_kms"] = "There is", "some missing", "data"
+                            car_dict["fuel"], car_dict["gearbox"] = "for this", "car :("
                     elif "c-item__data" in content.attrs["class"]:
                         # getting tag with price
                         next_tag_is_price = False
@@ -68,9 +71,29 @@ for descendant in html_body.descendants:
                 scraped_cars_dicts.append(car_dict)
     else:
         continue
-for car in scraped_cars_dicts:
-    # final data dict
-    print(car)
+# for car in scraped_cars_dicts:
+#     # final data dict
+#     print(car)
 
-print(html_body.find(attrs={"class": "c-item-list__count c-item-list__count--list"}).string)
+offers_total_count = html_body.find(attrs={"class": "c-item-list__count c-item-list__count--list"}).string
     # getting adverts count --> to later use for scraping more than the 1st page
+offers_total_count = int("".join([text for text in offers_total_count.split() if text.isnumeric()]))
+offers_page_count = len(html_body.find_all(attrs={"class": "sds-surface sds-surface--clickable sds-surface--00 c-item__link"}))
+    # getting how many offers are on one page
+page_count = math.ceil(offers_total_count/offers_page_count)
+    # getting estimated pages count (rounded up)
+for current_page in range(page_nr, page_count + 1):
+    # NEED TO REFACTOR (ideally into functions) the page data processing (to loop over all)
+    pass
+
+    # REFACTORING THE PAGE PROCESSING
+    # here the desired function should take in unique identifier of general tag
+    # ... that contains all the used car offer info and also additional arg
+    # ... to identify the cars data and price (--> likely at least 2 args then)
+for used_car_tag in html_body.find_all(attrs={"class": "c-item__data-wrap"}):
+    print(used_car_tag)
+    print()
+    print(f"Descendants: ({len([used_car for used_car in used_car_tag.descendants])})\n")
+    for descendant_tag in used_car_tag.descendants:
+        print(descendant_tag)
+    print("XXX \n")
